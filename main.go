@@ -27,11 +27,8 @@ func (h *httpParser) parseHead(head string) {
 			key := strings.TrimSpace(parts[0])
 			h.headerKey = append(h.headerKey, key)
 
-			valparts := strings.TrimSpace(parts[1])
-
-			for val := range strings.SplitSeq(valparts, ",") {
-				h.header[key] = append(h.header[key], val)
-			}
+			val := strings.TrimSpace(parts[1])
+			h.header[key] = append(h.header[key], val)
 
 		}
 	}
@@ -43,16 +40,16 @@ func (h *httpParser) printHead() {
 		fmt.Print(" - ", key, ": ")
 
 		// print inline if only one
-		if len(h.header[key]) <= 1 {
-			fmt.Println(h.header[key][0])
+		// if len(h.header[key]) <= 1 {
+		fmt.Println(h.header[key][0])
 
 		// print multiple line if more
-		} else {
-			fmt.Println()
-			for _, val := range h.header[key] {
-				fmt.Println("\t-", val)
-			}
-		}
+		// } else {
+		// 	fmt.Println()
+		// 	for _, val := range h.header[key] {
+		// 		fmt.Println("\t-", val)
+		// 	}
+		// }
 	}
 }
 
@@ -65,10 +62,12 @@ Content-Length: 1630
 Cache-Control: max-age=0
 Upgrade-Insecure-Requests: 1
 Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9
-Origin: http://192.168.100.109`
+Origin: http://192.168.100.109
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundaryTrctLTww4LksezWb`
 
 	h := newHttpParser()
 	if len(os.Args) > 1 {
+		// stream instead turn whole of it into string?
 		data, err := os.ReadFile(os.Args[1])
 		if err != nil {
 			panic("panik gak!")
