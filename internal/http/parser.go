@@ -6,11 +6,13 @@ import (
 	"strings"
 )
 
-func (h *httpParser) parseHeader(read *bufio.Reader) error {
+func (h *httpParser) parseHeader(read *bufio.Reader) (header, []string, error) {
+	header := make(header)
+	var headerKey []string
 	for {
 		line, err := read.ReadString('\n')
 		if err != nil {
-			return err
+			return nil, nil, err
 		}
 
 		line = strings.TrimSpace(line)
@@ -21,11 +23,11 @@ func (h *httpParser) parseHeader(read *bufio.Reader) error {
 			parts := strings.SplitN(line, ":", 2)
 			key := strings.TrimSpace(parts[0])
 			val := strings.TrimSpace(parts[1])
-			h.headerKey = append(h.headerKey, key)
-			h.header[key] = append(h.header[key], val)
+			headerKey = append(headerKey, key)
+			header[key] = append(header[key], val)
 		}
 	}
-	return nil
+	return header, headerKey, nil
 }
 
 
@@ -69,8 +71,11 @@ func (h *httpParser) parseBody(read *bufio.Reader) error {
 
 func (h *httpParser) Parse(read *bufio.Reader) error {
 	// TODO: bundle error
-	h.parseHeader(read)
+	var err error
+	h.header, h.headerKey, err = h.parseHeader(read)
+	if err != nil {
+		return err
+	}
 	h.parseBody(read)
 	return nil
 }
-
