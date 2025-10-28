@@ -16,9 +16,14 @@ type httpParser struct {
 func NewHttpParser() *httpParser {
 	return &httpParser{header: make(map[string][]string)}
 }
-func (h *httpParser) PrintHeader() {
+func (h *httpParser) PrintHeaderOrdered() {
 	for _, key := range h.headerKey {
-		fmt.Print(" - ", key, ": ")
-		fmt.Println(h.header[key][0])
+		fmt.Print("- ", key, ": [", h.header[key][0], "]\n")
+	}
+}
+
+func (h *httpParser) PrintHeader() {
+	for key, val := range h.header {
+		fmt.Print("- ", key, ": [", val[0], "]\n")
 	}
 }
