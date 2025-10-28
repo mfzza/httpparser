@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"fmt"
 	httpParser "httpparser/internal/http"
 	"os"
 )
@@ -19,5 +20,7 @@ func main() {
 	}
 	h := httpParser.NewHttpParser()
 	h.Parse(reader)
-	h.PrintHeader()
+	h.PrintHeaderOrdered()
+	fmt.Println()
+	h.PrintMultipart()
 }
