@@ -2,6 +2,7 @@ package httpParser
 
 import (
 	"bufio"
+	"fmt"
 	"io"
 	"strings"
 )
@@ -12,6 +13,9 @@ func (hp *httpParser) parseStartLine(r *bufio.Reader) error {
 		return nil
 	}
 	parts := strings.SplitN(startLine, " ", 3)
+	if len(parts) != 3 {
+		return fmt.Errorf("Invalid Start Line: %q", startLine)
+	}
 	// NOTE: trim space for the last part because it contain whitespace
 	hp.startLine = startLineType{parts[0], parts[1], strings.TrimSpace(parts[2])}
 
@@ -33,13 +37,14 @@ func parseHeader(r *bufio.Reader) (headerType, []string, error) {
 		if line == "" {
 			break
 		}
-		if strings.Contains(line, ":") {
-			parts := strings.SplitN(line, ":", 2)
-			key := strings.TrimSpace(parts[0])
-			val := strings.TrimSpace(parts[1])
-			headerKey = append(headerKey, key)
-			header[key] = val
+		parts := strings.SplitN(line, ":", 2)
+		if len(parts) != 2 {
+			return nil, nil, fmt.Errorf("Invalid Header field: %q", line)
 		}
+		key := strings.TrimSpace(parts[0])
+		val := strings.TrimSpace(parts[1])
+		headerKey = append(headerKey, key)
+		header[key] = val
 	}
 	return header, headerKey, nil
 }

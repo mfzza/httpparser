@@ -21,6 +21,7 @@ func main() {
 	h, err := httpParser.NewHttpParser(reader)
 	if err != nil {
 		fmt.Println(err)
+		return
 	}
 	h.Print()
 

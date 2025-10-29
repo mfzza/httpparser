@@ -3,13 +3,22 @@ package httpParser
 import (
 	"bufio"
 	"bytes"
+	"fmt"
 	"io"
 	"strings"
 )
 
-func (hp *httpParser) parseMultipartBody(r *bufio.Reader) (error) {
+func (hp *httpParser) parseMultipartBody(r *bufio.Reader) error {
 	ct := strings.Split(hp.header["Content-Type"], ";")
-	boundaryStr := strings.TrimPrefix(strings.TrimSpace(ct[1]), "boundary=")
+
+	if len(ct) != 2 {
+		return fmt.Errorf("Content-Type is multipart/form-data, but boundary not found")
+	}
+	boundaryStr := strings.TrimSpace(ct[1])
+	if !strings.HasPrefix(boundaryStr, "boundary=") {
+		return fmt.Errorf("Content-Type is multipart/form-data, but boundary is invalid: %q", boundaryStr)
+	}
+	boundaryStr = strings.TrimPrefix(boundaryStr, "boundary=")
 
 	boundary := []byte("--" + boundaryStr)
 	isBoundaryEnd := func(r *bufio.Reader) bool {
@@ -31,8 +40,9 @@ func (hp *httpParser) parseMultipartBody(r *bufio.Reader) (error) {
 		if idx = bytes.Index(buffer, boundary); idx != -1 {
 			// boundary found
 			// NOTE: should be both CRLF and LF
-			part := bytes.TrimPrefix(buffer[:idx], []byte("\r\n"))
-			part = bytes.TrimPrefix(buffer[:idx], []byte("\n"))
+			part := buffer[:idx]
+			part = bytes.TrimPrefix(part, []byte("\r\n"))
+			part = bytes.TrimPrefix(part, []byte("\n"))
 			// make sure it not empty
 			if len(part) != 0 {
 				form, err := assignMultipart(part)
