@@ -6,6 +6,13 @@ import (
 	"strings"
 )
 
+func (h* httpParser) parseStartLine() error {
+	startLine := 
+
+	return nil
+
+}
+
 // NOTE: reused in parsing multipart
 func parseHeader(read *bufio.Reader) (headerType, []string, error) {
 	header := make(headerType)

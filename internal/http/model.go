@@ -2,8 +2,6 @@ package httpParser
 
 import (
 	"bufio"
-	"fmt"
-	"strings"
 )
 
 type headerType map[string]string
@@ -45,47 +43,4 @@ func NewHttpParser(r *bufio.Reader) (*httpParser, error) {
 	}
 
 	return &hp, nil
-}
-
-func (h *httpParser) Print() {
-	fmt.Println("============== HEADER ==============")
-	h.printHeaderOrdered()
-	fmt.Println()
-	fmt.Println("============== HTTP DATA ==============")
-	h.printBody()
-}
-
-func (h *httpParser) printHeaderOrdered() {
-	for _, key := range h.headerKey {
-		fmt.Print("- ", key, ": [", h.header[key], "]\n")
-	}
-}
-
-func (h *httpParser) printHeader() {
-	for key, val := range h.header {
-		fmt.Print("- ", key, ": [", val[0], "]\n")
-	}
-}
-
-func (h *httpParser) printBody() {
-	ct := strings.Split(h.header["Content-Type"], ";")
-
-	switch ct[0] {
-	case "multipart/form-data":
-		h.printMultipart()
-	default:
-		fmt.Println(string(h.body))
-	}
-
-}
-
-func (h *httpParser) printMultipart() {
-	for i, form := range h.forms {
-		fmt.Print("------------- Form-Data #", i+1, " -------------\n")
-		fmt.Println("- Field:", "["+form.name+"]")
-		fmt.Println("- Filename:", "["+form.filename+"]")
-		fmt.Println("- Content-Type:", "["+form.contentType+"]")
-		fmt.Println("- Value:", "["+strings.TrimSpace(string(form.value))+"]")
-		// fmt.Println("Value:", form.value)
-	}
 }
