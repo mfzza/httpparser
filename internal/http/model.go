@@ -3,6 +3,7 @@ package httpParser
 import (
 	"bufio"
 	"fmt"
+	"strings"
 )
 
 type header map[string][]string
@@ -57,11 +58,12 @@ func (h *httpParser) PrintHeader() {
 func (h *httpParser) printMultipart() {
 	fmt.Println("============== HTTP DATA ==============")
 	for i, form := range h.forms {
-		fmt.Print("Form-Data #", i, "\n")
+		fmt.Print("------------- Form-Data #", i+1, " -------------\n")
 		fmt.Println("Field:", "["+form.name+"]")
 		fmt.Println("Filename:", "["+form.filename+"]")
 		fmt.Println("Content-Type:", "["+form.contentType+"]")
-		fmt.Print("Value:", "["+string(form.value)+"]\n")
+		fmt.Println("Value:", "["+strings.TrimSpace(string(form.value))+"]")
+		// fmt.Println("Value:", form.value)
 	}
 }
 
