@@ -32,7 +32,7 @@ func NewHttpParser(r *bufio.Reader) ( *httpParser, error ) {
 	return &hp, nil
 }
 
-func (h *httpParser) PrintHeaderOrdered() {
+func (h *httpParser) printHeaderOrdered() {
 	fmt.Println("============== HEADER ==============")
 	for _, key := range h.headerKey {
 		fmt.Print("- ", key, ": [", h.header[key][0], "]\n")
@@ -46,7 +46,7 @@ func (h *httpParser) PrintHeader() {
 	}
 }
 
-func (h *httpParser) PrintMultipart() {
+func (h *httpParser) printMultipart() {
 	fmt.Println("============== HTTP DATA ==============")
 	for i, form := range h.forms {
 		fmt.Print("Form-Data #", i, "\n")
@@ -55,4 +55,10 @@ func (h *httpParser) PrintMultipart() {
 		fmt.Println("Content-Type:", "["+form.contentType+"]")
 		fmt.Print("Value:", "["+string(form.value)+"]\n")
 	}
+}
+
+func (h *httpParser) Print() {
+	h.printHeaderOrdered()
+	fmt.Println()
+	h.printMultipart()
 }

@@ -22,5 +22,6 @@ func main() {
 	if err != nil {
 		fmt.Println(err)
 	}
-	h.PrintMultipart()
+	h.Print()
+
 }
