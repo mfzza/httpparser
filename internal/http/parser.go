@@ -6,25 +6,25 @@ import (
 	"strings"
 )
 
-func (h *httpParser) parseStartLine(read *bufio.Reader) error {
-	startLine, err := read.ReadString('\n')
+func (hp *httpParser) parseStartLine(r *bufio.Reader) error {
+	startLine, err := r.ReadString('\n')
 	if err != nil {
 		return nil
 	}
 	parts := strings.SplitN(startLine, " ", 3)
 	// NOTE: trim space for the last part because it contain whitespace
-	h.startLine = startLineType{parts[0], parts[1], strings.TrimSpace(parts[2])}
+	hp.startLine = startLineType{parts[0], parts[1], strings.TrimSpace(parts[2])}
 
 	return nil
 
 }
 
 // NOTE: reused in parsing multipart
-func parseHeader(read *bufio.Reader) (headerType, []string, error) {
+func parseHeader(r *bufio.Reader) (headerType, []string, error) {
 	header := make(headerType)
 	var headerKey []string
 	for {
-		line, err := read.ReadString('\n')
+		line, err := r.ReadString('\n')
 		if err != nil {
 			return nil, nil, err
 		}
@@ -44,18 +44,18 @@ func parseHeader(read *bufio.Reader) (headerType, []string, error) {
 	return header, headerKey, nil
 }
 
-func (h *httpParser) parseBody(read *bufio.Reader) error {
-	ct := strings.Split(h.header["Content-Type"], ";")
+func (hp *httpParser) parseBody(r *bufio.Reader) error {
+	ct := strings.Split(hp.header["Content-Type"], ";")
 
 	switch ct[0] {
 	case "multipart/form-data":
-		err := h.parseMultipartBody(read)
+		err := hp.parseMultipartBody(r)
 		if err != nil {
 			return err
 		}
 	default:
 		var err error
-		h.body, err = io.ReadAll(read)
+		hp.body, err = io.ReadAll(r)
 		if err != nil {
 			return err
 		}

@@ -7,8 +7,8 @@ import (
 	"strings"
 )
 
-func (h *httpParser) parseMultipartBody(read *bufio.Reader) (error) {
-	ct := strings.Split(h.header["Content-Type"], ";")
+func (hp *httpParser) parseMultipartBody(r *bufio.Reader) (error) {
+	ct := strings.Split(hp.header["Content-Type"], ";")
 	boundaryStr := strings.TrimPrefix(strings.TrimSpace(ct[1]), "boundary=")
 
 	boundary := []byte("--" + boundaryStr)
@@ -21,7 +21,7 @@ func (h *httpParser) parseMultipartBody(read *bufio.Reader) (error) {
 	var idx int
 	for {
 		// TODO: chunks instead of byte
-		rb, err := read.ReadByte()
+		rb, err := r.ReadByte()
 		if err != nil {
 			return err
 		}
@@ -39,11 +39,11 @@ func (h *httpParser) parseMultipartBody(read *bufio.Reader) (error) {
 				if err != nil {
 					return err
 				}
-				h.forms = append(h.forms, form)
+				hp.forms = append(hp.forms, form)
 			}
 			buffer = buffer[idx+len(boundary):]
 
-			if isBoundaryEnd(read) {
+			if isBoundaryEnd(r) {
 				break
 			}
 		}

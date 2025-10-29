@@ -5,47 +5,46 @@ import (
 	"strings"
 )
 
-func (h *httpParser) Print() {
+func (hp *httpParser) Print() {
 	fmt.Println("============ Start Line ============")
-	h.printStartLine()
+	hp.printStartLine()
 	fmt.Println("============== HEADER ==============")
-	h.printHeaderOrdered()
-	fmt.Println()
+	hp.printHeaderOrdered()
 	fmt.Println("============== HTTP DATA ==============")
-	h.printBody()
+	hp.printBody()
 }
-func (h *httpParser) printStartLine() {
-	fmt.Println("- method:", h.startLine.method)
-	fmt.Println("- url:", h.startLine.url)
-	fmt.Println("- version:", h.startLine.version)
+func (hp *httpParser) printStartLine() {
+	fmt.Println("- method:", hp.startLine.method)
+	fmt.Println("- url:", hp.startLine.url)
+	fmt.Println("- version:", hp.startLine.version)
 }
 
-func (h *httpParser) printHeaderOrdered() {
-	for _, key := range h.headerKey {
-		fmt.Print("- ", key, ": [", h.header[key], "]\n")
+func (hp *httpParser) printHeaderOrdered() {
+	for _, key := range hp.headerKey {
+		fmt.Print("- ", key, ": [", hp.header[key], "]\n")
 	}
 }
 
-func (h *httpParser) printHeader() {
-	for key, val := range h.header {
+func (hp *httpParser) printHeader() {
+	for key, val := range hp.header {
 		fmt.Print("- ", key, ": [", val[0], "]\n")
 	}
 }
 
-func (h *httpParser) printBody() {
-	ct := strings.Split(h.header["Content-Type"], ";")
+func (hp *httpParser) printBody() {
+	ct := strings.Split(hp.header["Content-Type"], ";")
 
 	switch ct[0] {
 	case "multipart/form-data":
-		h.printMultipart()
+		hp.printMultipart()
 	default:
-		fmt.Println(string(h.body))
+		fmt.Println(string(hp.body))
 	}
 
 }
 
-func (h *httpParser) printMultipart() {
-	for i, form := range h.forms {
+func (hp *httpParser) printMultipart() {
+	for i, form := range hp.forms {
 		fmt.Print("------------- Form-Data #", i+1, " -------------\n")
 		fmt.Println("- Field:", "["+form.name+"]")
 		fmt.Println("- Filename:", "["+form.filename+"]")
