@@ -1,0 +1,25 @@
+POST /upload HTTP/2
+Host: api.example.com
+Content-Type: multipart/form-data; boundary=--------------------------1234567890
+
+----------------------------1234567890
+Content-Disposition: form-data; name="metadata"
+Content-Type: application/json
+
+{
+  "name": "My PDF Document",
+  "recipients": [
+    "andy@example.com",
+    "sarah@example.com"
+  ]
+}
+----------------------------1234567890
+Content-Disposition: form-data; name="description"
+
+This is a long form text field which can also be sent if JSON is not your thing.
+----------------------------1234567890
+Content-Disposition: form-data; name="file"; filename="document.pdf"
+Content-Type: application/octet-stream
+
+[base64 encoded PDF file data]
+----------------------------1234567890--

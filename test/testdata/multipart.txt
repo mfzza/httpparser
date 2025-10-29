@@ -1,0 +1,81 @@
+POST /gnuboard4/bbs/write_update.php HTTP/1.1
+Host: 192.168.100.109
+Connection: keep-alive
+Content-Length: 1630
+Cache-Control: max-age=0
+Upgrade-Insecure-Requests: 1
+Origin: http://192.168.100.109
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundaryTrctLTww4LksezWb
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.75 Safari/537.36
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8, application/signed-exchange;v=b3;q=0.9
+Referer: http://192.168.100.109/gnuboard4/bbs/write.php?bo_table=outbound
+Accept-Encoding: gzip, deflate
+Accept-Language: ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7
+Cookie: PHPSESSID=0dln0tothhiufgfva3uqqpl1o4; f33d2ed86bd82d4c22123c9da444d8ab=MTYwMzE4MjMxOA%3D%3D; 2a0d2363701f23f8a75028924a3af643=MTkyLjE2OC4xMDAuNjI%3D; 96b28b766b7e0699aa91c9ff3d890663=aHR0cDovLzE5Mi4xNjguMTAwLjEwOS9nbnVib2FyZDQv
+
+------WebKitFormBoundaryTrctLTww4LksezWb
+Content-Disposition: form-data; name="null"
+
+
+------WebKitFormBoundaryTrctLTww4LksezWb
+Content-Disposition: form-data; name="w"
+
+
+------WebKitFormBoundaryTrctLTww4LksezWb
+Content-Disposition: form-data; name="bo_table"
+
+outbound
+------WebKitFormBoundaryTrctLTww4LksezWb
+Content-Disposition: form-data; name="wr_id"
+
+
+------WebKitFormBoundaryTrctLTww4LksezWb
+Content-Disposition: form-data; name="sca"
+
+
+------WebKitFormBoundaryTrctLTww4LksezWb
+Content-Disposition: form-data; name="sfl"
+
+
+------WebKitFormBoundaryTrctLTww4LksezWb
+Content-Disposition: form-data; name="stx"
+
+
+------WebKitFormBoundaryTrctLTww4LksezWb
+Content-Disposition: form-data; name="spt"
+
+
+------WebKitFormBoundaryTrctLTww4LksezWb
+Content-Disposition: form-data; name="sst"
+
+
+------WebKitFormBoundaryTrctLTww4LksezWb
+Content-Disposition: form-data; name="sod"
+
+
+------WebKitFormBoundaryTrctLTww4LksezWb
+Content-Disposition: form-data; name="page"
+
+
+------WebKitFormBoundaryTrctLTww4LksezWb
+Content-Disposition: form-data; name="wr_subject"
+
+Subject_sample
+------WebKitFormBoundaryTrctLTww4LksezWb
+Content-Disposition: form-data; name="wr_content"
+
+Content_sample
+------WebKitFormBoundaryTrctLTww4LksezWb
+Content-Disposition: form-data; name="wr_link1"
+
+
+------WebKitFormBoundaryTrctLTww4LksezWb
+Content-Disposition: form-data; name="wr_link2"
+
+
+------WebKitFormBoundaryTrctLTww4LksezWb
+Content-Disposition: form-data; name="bf_file[]"; filename="test.txt"
+Content-Type: text/plain
+
+111111-2111111
+------WebKitFormBoundaryTrctLTww4LksezWb--
