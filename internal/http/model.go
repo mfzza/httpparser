@@ -1,6 +1,7 @@
 package httpParser
 
 import (
+	"bufio"
 	"fmt"
 )
 
@@ -22,9 +23,15 @@ type multipart struct {
 	value       []byte
 }
 
-func NewHttpParser() *httpParser {
-	return &httpParser{header: make(map[string][]string)}
+func NewHttpParser(r *bufio.Reader) ( *httpParser, error ) {
+	hp := httpParser{header: make(map[string][]string)}
+	err := hp.parse(r)
+	if err != nil {
+		return nil, err
+	}
+	return &hp, nil
 }
+
 func (h *httpParser) PrintHeaderOrdered() {
 	fmt.Println("============== HEADER ==============")
 	for _, key := range h.headerKey {

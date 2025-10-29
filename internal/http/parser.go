@@ -43,7 +43,7 @@ func (h *httpParser) parseBody(read *bufio.Reader) error {
 	return nil
 }
 
-func (h *httpParser) Parse(read *bufio.Reader) error {
+func (h *httpParser) parse(read *bufio.Reader) error {
 	// TODO: bundle error
 	var err error
 	h.header, h.headerKey, err = h.parseHeader(read)

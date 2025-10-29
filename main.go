@@ -18,9 +18,9 @@ func main() {
 
 		reader = bufio.NewReader(file)
 	}
-	h := httpParser.NewHttpParser()
-	h.Parse(reader)
-	h.PrintHeaderOrdered()
-	fmt.Println()
+	h, err := httpParser.NewHttpParser(reader)
+	if err != nil {
+		fmt.Println(err)
+	}
 	h.PrintMultipart()
 }
