@@ -25,10 +25,18 @@ type multipart struct {
 
 func NewHttpParser(r *bufio.Reader) ( *httpParser, error ) {
 	hp := httpParser{header: make(map[string][]string)}
-	err := hp.parse(r)
+
+	var err error
+	hp.header, hp.headerKey, err = hp.parseHeader(r)
 	if err != nil {
 		return nil, err
 	}
+
+	hp.forms, err = hp.parseMultipartBody(r)
+	if err != nil {
+		return nil, err
+	}
+
 	return &hp, nil
 }
 

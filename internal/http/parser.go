@@ -42,18 +42,3 @@ func (h *httpParser) parseBody(read *bufio.Reader) error {
 	}
 	return nil
 }
-
-func (h *httpParser) parse(read *bufio.Reader) error {
-	// TODO: bundle error
-	var err error
-	h.header, h.headerKey, err = h.parseHeader(read)
-	if err != nil {
-		return err
-	}
-
-	h.forms, err = h.parseMultipartBody(read)
-	if err != nil {
-		return err
-	}
-	return nil
-}
