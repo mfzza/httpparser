@@ -8,13 +8,6 @@ import (
 )
 
 func (h *httpParser) parseMultipartBody(read *bufio.Reader) ([]multipart, error) {
-	// TODO: process multipart/form-data
-	// NOTE: https://datatracker.ietf.org/doc/html/rfc7578
-	// anatomy of multipart: each part
-	// - must have content-disposition header field, with type "form-data", and parameter of "name"
-	// - optional: parameter of "filename"
-	// - optional: content-type header field
-	// - Other header fields are generally not used and should be ignored if present
 	ct := h.header["Content-Type"]
 	ct = strings.Split(ct[0], ";")
 	boundaryStr := strings.TrimPrefix(strings.TrimSpace(ct[1]), "boundary=")
