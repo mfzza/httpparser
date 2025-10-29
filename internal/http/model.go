@@ -7,12 +7,19 @@ import (
 type headerType map[string]string
 
 type httpParser struct {
-	startLine string
+	startLine startLineType
 	header    headerType
 	headerKey []string //NOTE: to know it order, maybe not really needed?
 	// body      string
 	body  []byte
 	forms []multipart
+}
+
+type startLineType struct {
+	// NOTE: assume it multipart/form-data, so it http request
+	method  string
+	url     string
+	version string
 }
 
 // NOTE: https://datatracker.ietf.org/doc/html/rfc7578
@@ -32,6 +39,10 @@ func NewHttpParser(r *bufio.Reader) (*httpParser, error) {
 	hp := httpParser{header: make(headerType)}
 
 	var err error
+	err = hp.parseStartLine(r)
+	if err != nil {
+		return nil, err
+	}
 	hp.header, hp.headerKey, err = parseHeader(r)
 	if err != nil {
 		return nil, err

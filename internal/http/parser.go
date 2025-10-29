@@ -6,8 +6,13 @@ import (
 	"strings"
 )
 
-func (h* httpParser) parseStartLine() error {
-	startLine := 
+func (h* httpParser) parseStartLine(read *bufio.Reader) error {
+	startLine, err := read.ReadString('\n')
+	if err != nil {
+		return nil
+	}
+	parts := strings.SplitN(startLine, " ", 3)
+	h.startLine = startLineType{parts[0], parts[1], parts[2]}
 
 	return nil
 
