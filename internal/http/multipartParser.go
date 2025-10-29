@@ -72,17 +72,37 @@ func assignMultipart(part []byte) (multipart, bool, error) {
 	if err != nil {
 		return form, false, err
 	}
-	value, err := io.ReadAll(read)
-	if err != nil {
-		return form, false, err
-	}
 
-	// skip if doesnt have Content-Disposition field or if it not form-data
+	// skip if doesnt have Content-Disposition field
 	cd := strings.TrimSpace(header["Content-Disposition"])
-	if cd == "" || !strings.HasPrefix(cd, "form-data;") {
+	if cd == "" {
 		return form, false, nil
 	}
-	name, filename := parseContentDisposition(cd)
+
+	var name, filename string
+	fields := strings.Split(cd, ";")
+	// if it less than 2, which is it only contain text "form-data"
+	if len(fields) < 2 {
+		return form, false, nil
+	}
+	// if the first fields is not "form-data"
+	if !strings.Contains(fields[0], "form-data") {
+		return form, false, nil
+	}
+	// if the second fields is not prefix "name="
+	fields[1] = strings.TrimSpace(fields[1])
+	if !strings.HasPrefix(fields[1], "name=") {
+		return form, false, nil
+	}
+
+	// process name field
+	name = strings.TrimPrefix(fields[1], "name=")
+
+	// process filename field, if exists
+	if len(fields) >= 3 {
+		filename = strings.TrimPrefix(fields[1], "filename=")
+	}
+
 	var ct string
 	if len(header["Content-Type"]) == 0 {
 		ct = ""
@@ -90,21 +110,11 @@ func assignMultipart(part []byte) (multipart, bool, error) {
 		ct = header["Content-Type"]
 	}
 
-	// skip if name is empty
-	if name == "" {
-		return form, false, nil
+	value, err := io.ReadAll(read)
+	if err != nil {
+		return form, false, err
 	}
+
 	form = multipart{name: name, filename: filename, contentType: ct, value: value}
 	return form, true, nil
-}
-
-func parseContentDisposition(cd string) (string, string) {
-	var name, filename string
-	parts := strings.Split(cd, ";")
-	name = strings.TrimPrefix(strings.TrimSpace(parts[1]), "name=")
-	if len(parts) > 2 {
-		filename = strings.TrimPrefix(strings.TrimSpace(parts[2]), "filename=")
-	}
-
-	return name, filename
 }
