@@ -32,7 +32,7 @@ func (hp *httpParser) printHeader() {
 }
 
 func (hp *httpParser) printBody() {
-	ct := strings.Split(hp.header["Content-Type"], ";")
+	ct := strings.Split(hp.header["content-type"], ";")
 
 	switch ct[0] {
 	case "multipart/form-data":

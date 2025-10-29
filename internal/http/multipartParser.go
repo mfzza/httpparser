@@ -9,7 +9,7 @@ import (
 )
 
 func (hp *httpParser) parseMultipartBody(r *bufio.Reader) error {
-	ct := strings.Split(hp.header["Content-Type"], ";")
+	ct := strings.Split(hp.header["content-type"], ";")
 
 	if len(ct) != 2 {
 		return fmt.Errorf("Content-Type is multipart/form-data, but boundary not found")
@@ -74,7 +74,7 @@ func assignMultipart(part []byte) (multipart, bool, error) {
 	}
 
 	// skip if doesnt have Content-Disposition field
-	cd := strings.TrimSpace(header["Content-Disposition"])
+	cd := strings.TrimSpace(header["content-disposition"])
 	if cd == "" {
 		return form, false, nil
 	}
@@ -106,10 +106,10 @@ func assignMultipart(part []byte) (multipart, bool, error) {
 	}
 
 	var ct string
-	if len(header["Content-Type"]) == 0 {
+	if len(header["content-type"]) == 0 {
 		ct = ""
 	} else {
-		ct = header["Content-Type"]
+		ct = header["content-type"]
 	}
 
 	value, err := io.ReadAll(read)
