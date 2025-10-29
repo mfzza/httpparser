@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"bytes"
 	"io"
+	"strconv"
 	"strings"
 )
 
@@ -18,9 +19,14 @@ func (h *httpParser) parseMultipartBody(read *bufio.Reader) ([]multipart, error)
 		return string(next) == "--"
 	}
 
+	// NOTE: use content-length to set capacity
+	cl := 0
+	if v, ok := h.header["Content-Length"]; ok && len(v) > 0 {
+		cl, _ = strconv.Atoi(v[0])
+	}
+	parts := make([][]byte, 0, cl)
+
 	buffer := []byte{}
-	// NOTE: use make instead to set capacity based on "content-length"?
-	parts := [][]byte{}
 	var idx int
 	for {
 		// TODO: chunks instead of byte
