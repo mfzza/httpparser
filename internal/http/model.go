@@ -30,7 +30,7 @@ type multipart struct {
 	value       []byte
 }
 
-func NewHttpParser(r *bufio.Reader) ( *httpParser, error ) {
+func NewHttpParser(r *bufio.Reader) (*httpParser, error) {
 	hp := httpParser{header: make(map[string][]string)}
 
 	var err error
@@ -39,7 +39,7 @@ func NewHttpParser(r *bufio.Reader) ( *httpParser, error ) {
 		return nil, err
 	}
 
-	hp.forms, err = hp.parseMultipartBody(r)
+	err = hp.parseMultipartBody(r)
 	if err != nil {
 		return nil, err
 	}
