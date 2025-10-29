@@ -86,21 +86,23 @@ func assignMultipart(part []byte) (multipart, bool, error) {
 		return form, false, nil
 	}
 	// if the first fields is not "form-data"
-	if !strings.Contains(fields[0], "form-data") {
+	if strings.TrimSpace(fields[0]) != "form-data" {
 		return form, false, nil
 	}
 	// if the second fields is not prefix "name="
 	fields[1] = strings.TrimSpace(fields[1])
-	if !strings.HasPrefix(fields[1], "name=") {
+	if tmp, ok := strings.CutPrefix(fields[1], "name="); ok {
+		name = tmp
+	} else {
 		return form, false, nil
 	}
 
-	// process name field
-	name = strings.TrimPrefix(fields[1], "name=")
-
 	// process filename field, if exists
 	if len(fields) >= 3 {
-		filename = strings.TrimPrefix(fields[1], "filename=")
+		fields[2] = strings.TrimSpace(fields[2])
+		if tmp, ok := strings.CutPrefix(fields[2], "filename="); ok {
+			filename = tmp
+		}
 	}
 
 	var ct string
