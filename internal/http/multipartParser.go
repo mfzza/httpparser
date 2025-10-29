@@ -45,11 +45,13 @@ func (hp *httpParser) parseMultipartBody(r *bufio.Reader) error {
 			part = bytes.TrimPrefix(part, []byte("\n"))
 			// make sure it not empty
 			if len(part) != 0 {
-				form, err := assignMultipart(part)
+				form, ok, err := assignMultipart(part)
 				if err != nil {
 					return err
 				}
-				hp.forms = append(hp.forms, form)
+				if ok {
+					hp.forms = append(hp.forms, form)
+				}
 			}
 			buffer = buffer[idx+len(boundary):]
 
@@ -62,25 +64,38 @@ func (hp *httpParser) parseMultipartBody(r *bufio.Reader) error {
 	return nil
 }
 
-func assignMultipart(part []byte) (multipart, error) {
+func assignMultipart(part []byte) (multipart, bool, error) {
 	form := multipart{}
 	read := bufio.NewReader(bytes.NewReader(part))
 
 	header, _, err := parseHeader(read)
 	if err != nil {
-		return form, err
+		return form, false, err
 	}
-	value, _ := io.ReadAll(read)
+	value, err := io.ReadAll(read)
+	if err != nil {
+		return form, false, err
+	}
 
-	name, filename := parseContentDisposition(header["Content-Disposition"])
+	// skip if doesnt have Content-Disposition field or if it not form-data
+	cd := strings.TrimSpace(header["Content-Disposition"])
+	if cd == "" || !strings.HasPrefix(cd, "form-data;") {
+		return form, false, nil
+	}
+	name, filename := parseContentDisposition(cd)
 	var ct string
 	if len(header["Content-Type"]) == 0 {
 		ct = ""
 	} else {
 		ct = header["Content-Type"]
 	}
+
+	// skip if name is empty
+	if name == "" {
+		return form, false, nil
+	}
 	form = multipart{name: name, filename: filename, contentType: ct, value: value}
-	return form, nil
+	return form, true, nil
 }
 
 func parseContentDisposition(cd string) (string, string) {
