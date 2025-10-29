@@ -5,7 +5,8 @@ import (
 	"strings"
 )
 
-func (h *httpParser) parseHeader(read *bufio.Reader) (header, []string, error) {
+// NOTE: reused in parsing multipart
+func parseHeader(read *bufio.Reader) (header, []string, error) {
 	header := make(header)
 	var headerKey []string
 	for {

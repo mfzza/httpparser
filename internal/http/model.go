@@ -34,7 +34,7 @@ func NewHttpParser(r *bufio.Reader) ( *httpParser, error ) {
 	hp := httpParser{header: make(map[string][]string)}
 
 	var err error
-	hp.header, hp.headerKey, err = hp.parseHeader(r)
+	hp.header, hp.headerKey, err = parseHeader(r)
 	if err != nil {
 		return nil, err
 	}

@@ -37,7 +37,7 @@ func (h *httpParser) parseMultipartBody(read *bufio.Reader) ([]multipart, error)
 			part = bytes.TrimPrefix(buffer[:idx], []byte("\n"))
 			// make sure it not empty
 			if len(part) != 0 {
-				form, err := h.assignMultipart(part)
+				form, err := assignMultipart(part)
 				if err != nil {
 					return nil, err
 				}
@@ -54,11 +54,11 @@ func (h *httpParser) parseMultipartBody(read *bufio.Reader) ([]multipart, error)
 	return forms, nil
 }
 
-func (h *httpParser) assignMultipart(part []byte) (multipart, error) {
+func assignMultipart(part []byte) (multipart, error) {
 	form := multipart{}
 	read := bufio.NewReader(bytes.NewReader(part))
 
-	header, _, err := h.parseHeader(read)
+	header, _, err := parseHeader(read)
 	if err != nil {
 		return form, err
 	}
