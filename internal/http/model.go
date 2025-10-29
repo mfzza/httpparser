@@ -39,7 +39,7 @@ func NewHttpParser(r *bufio.Reader) (*httpParser, error) {
 		return nil, err
 	}
 
-	err = hp.parseMultipartBody(r)
+	err = hp.parseBody(r)
 	if err != nil {
 		return nil, err
 	}
@@ -47,34 +47,46 @@ func NewHttpParser(r *bufio.Reader) (*httpParser, error) {
 	return &hp, nil
 }
 
-func (h *httpParser) printHeaderOrdered() {
+func (h *httpParser) Print() {
 	fmt.Println("============== HEADER ==============")
+	h.printHeaderOrdered()
+	fmt.Println()
+	fmt.Println("============== HTTP DATA ==============")
+	h.printBody()
+}
+
+func (h *httpParser) printHeaderOrdered() {
 	for _, key := range h.headerKey {
 		fmt.Print("- ", key, ": [", h.header[key][0], "]\n")
 	}
 }
 
-func (h *httpParser) PrintHeader() {
-	fmt.Println("============== HEADER ==============")
+func (h *httpParser) printHeader() {
 	for key, val := range h.header {
 		fmt.Print("- ", key, ": [", val[0], "]\n")
 	}
 }
 
-func (h *httpParser) printMultipart() {
-	fmt.Println("============== HTTP DATA ==============")
-	for i, form := range h.forms {
-		fmt.Print("------------- Form-Data #", i+1, " -------------\n")
-		fmt.Println("Field:", "["+form.name+"]")
-		fmt.Println("Filename:", "["+form.filename+"]")
-		fmt.Println("Content-Type:", "["+form.contentType+"]")
-		fmt.Println("Value:", "["+strings.TrimSpace(string(form.value))+"]")
-		// fmt.Println("Value:", form.value)
+func (h *httpParser) printBody() {
+	ct := h.header["Content-Type"]
+	ct = strings.Split(ct[0], ";")
+
+	switch ct[0] {
+	case "multipart/form-data":
+		h.printMultipart()
+	default:
+		fmt.Println(string(h.body))
 	}
+
 }
 
-func (h *httpParser) Print() {
-	h.printHeaderOrdered()
-	fmt.Println()
-	h.printMultipart()
+func (h *httpParser) printMultipart() {
+	for i, form := range h.forms {
+		fmt.Print("------------- Form-Data #", i+1, " -------------\n")
+		fmt.Println("- Field:", "["+form.name+"]")
+		fmt.Println("- Filename:", "["+form.filename+"]")
+		fmt.Println("- Content-Type:", "["+form.contentType+"]")
+		fmt.Println("- Value:", "["+strings.TrimSpace(string(form.value))+"]")
+		// fmt.Println("Value:", form.value)
+	}
 }

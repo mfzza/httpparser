@@ -2,6 +2,7 @@ package httpParser
 
 import (
 	"bufio"
+	"io"
 	"strings"
 )
 
@@ -30,16 +31,22 @@ func parseHeader(read *bufio.Reader) (header, []string, error) {
 	return header, headerKey, nil
 }
 
-// NOTE: not used
 func (h *httpParser) parseBody(read *bufio.Reader) error {
 	ct := h.header["Content-Type"]
 	ct = strings.Split(ct[0], ";")
 
 	switch ct[0] {
 	case "multipart/form-data":
-		// boundary := strings.TrimPrefix(strings.TrimSpace(ct[1]), "boundary=")
-		// h.parseMultipartBody(boundary, read)
+		err := h.parseMultipartBody(read)
+		if err != nil {
+			return err
+		}
 	default:
+		var err error
+		h.body, err = io.ReadAll(read)
+		if err != nil {
+			return err
+		}
 	}
 	return nil
 }
