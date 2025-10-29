@@ -8,8 +8,7 @@ import (
 )
 
 func (h *httpParser) parseMultipartBody(read *bufio.Reader) (error) {
-	ct := h.header["Content-Type"]
-	ct = strings.Split(ct[0], ";")
+	ct := strings.Split(h.header["Content-Type"], ";")
 	boundaryStr := strings.TrimPrefix(strings.TrimSpace(ct[1]), "boundary=")
 
 	boundary := []byte("--" + boundaryStr)
@@ -63,13 +62,12 @@ func assignMultipart(part []byte) (multipart, error) {
 	}
 	value, _ := io.ReadAll(read)
 
-	cd := header["Content-Disposition"]
-	name, filename := parseContentDisposition(cd[0])
+	name, filename := parseContentDisposition(header["Content-Disposition"])
 	var ct string
 	if len(header["Content-Type"]) == 0 {
 		ct = ""
 	} else {
-		ct = header["Content-Type"][0]
+		ct = header["Content-Type"]
 	}
 	form = multipart{name: name, filename: filename, contentType: ct, value: value}
 	return form, nil

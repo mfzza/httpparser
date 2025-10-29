@@ -7,8 +7,8 @@ import (
 )
 
 // NOTE: reused in parsing multipart
-func parseHeader(read *bufio.Reader) (header, []string, error) {
-	header := make(header)
+func parseHeader(read *bufio.Reader) (headerType, []string, error) {
+	header := make(headerType)
 	var headerKey []string
 	for {
 		line, err := read.ReadString('\n')
@@ -25,15 +25,14 @@ func parseHeader(read *bufio.Reader) (header, []string, error) {
 			key := strings.TrimSpace(parts[0])
 			val := strings.TrimSpace(parts[1])
 			headerKey = append(headerKey, key)
-			header[key] = append(header[key], val)
+			header[key] = val
 		}
 	}
 	return header, headerKey, nil
 }
 
 func (h *httpParser) parseBody(read *bufio.Reader) error {
-	ct := h.header["Content-Type"]
-	ct = strings.Split(ct[0], ";")
+	ct := strings.Split(h.header["Content-Type"], ";")
 
 	switch ct[0] {
 	case "multipart/form-data":

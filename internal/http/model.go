@@ -6,11 +6,11 @@ import (
 	"strings"
 )
 
-type header map[string][]string
+type headerType map[string]string
 
 type httpParser struct {
 	startLine string
-	header    header
+	header    headerType
 	headerKey []string //NOTE: to know it order, maybe not really needed?
 	// body      string
 	body  []byte
@@ -31,7 +31,7 @@ type multipart struct {
 }
 
 func NewHttpParser(r *bufio.Reader) (*httpParser, error) {
-	hp := httpParser{header: make(map[string][]string)}
+	hp := httpParser{header: make(headerType)}
 
 	var err error
 	hp.header, hp.headerKey, err = parseHeader(r)
@@ -57,7 +57,7 @@ func (h *httpParser) Print() {
 
 func (h *httpParser) printHeaderOrdered() {
 	for _, key := range h.headerKey {
-		fmt.Print("- ", key, ": [", h.header[key][0], "]\n")
+		fmt.Print("- ", key, ": [", h.header[key], "]\n")
 	}
 }
 
@@ -68,8 +68,7 @@ func (h *httpParser) printHeader() {
 }
 
 func (h *httpParser) printBody() {
-	ct := h.header["Content-Type"]
-	ct = strings.Split(ct[0], ";")
+	ct := strings.Split(h.header["Content-Type"], ";")
 
 	switch ct[0] {
 	case "multipart/form-data":
