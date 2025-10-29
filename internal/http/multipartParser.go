@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"bytes"
 	"io"
-	"strconv"
 	"strings"
 )
 
@@ -19,13 +18,7 @@ func (h *httpParser) parseMultipartBody(read *bufio.Reader) ([]multipart, error)
 		return string(next) == "--"
 	}
 
-	// NOTE: use content-length to set capacity
-	cl := 0
-	if v, ok := h.header["Content-Length"]; ok && len(v) > 0 {
-		cl, _ = strconv.Atoi(v[0])
-	}
-	parts := make([][]byte, 0, cl)
-
+	forms := []multipart{}
 	buffer := []byte{}
 	var idx int
 	for {
@@ -42,8 +35,13 @@ func (h *httpParser) parseMultipartBody(read *bufio.Reader) ([]multipart, error)
 			// NOTE: should be both CRLF and LF
 			part := bytes.TrimPrefix(buffer[:idx], []byte("\r\n"))
 			part = bytes.TrimPrefix(buffer[:idx], []byte("\n"))
+			// make sure it not empty
 			if len(part) != 0 {
-				parts = append(parts, part)
+				form, err := h.assignMultipart(part)
+				if err != nil {
+					return nil, err
+				}
+				forms = append(forms, form)
 			}
 			buffer = buffer[idx+len(boundary):]
 
@@ -53,31 +51,29 @@ func (h *httpParser) parseMultipartBody(read *bufio.Reader) ([]multipart, error)
 		}
 	}
 
-	forms := []multipart{}
-
-	for _, part := range parts {
-		read = bufio.NewReader(bytes.NewReader(part))
-
-		header, _, err := h.parseHeader(read)
-		if err != nil {
-			return nil, err
-		}
-		value, _ := io.ReadAll(read)
-
-		cd := header["Content-Disposition"]
-		name, filename := parseContentDisposition(cd[0])
-		var ct string
-		if len(header["Content-Type"]) == 0 {
-			ct = ""
-		} else {
-			ct = header["Content-Type"][0]
-		}
-		form := multipart{name: name, filename: filename, contentType: ct, value: value}
-		forms = append(forms, form)
-
-	}
-
 	return forms, nil
+}
+
+func (h *httpParser) assignMultipart(part []byte) (multipart, error) {
+	form := multipart{}
+	read := bufio.NewReader(bytes.NewReader(part))
+
+	header, _, err := h.parseHeader(read)
+	if err != nil {
+		return form, err
+	}
+	value, _ := io.ReadAll(read)
+
+	cd := header["Content-Disposition"]
+	name, filename := parseContentDisposition(cd[0])
+	var ct string
+	if len(header["Content-Type"]) == 0 {
+		ct = ""
+	} else {
+		ct = header["Content-Type"][0]
+	}
+	form = multipart{name: name, filename: filename, contentType: ct, value: value}
+	return form, nil
 }
 
 func parseContentDisposition(cd string) (string, string) {
