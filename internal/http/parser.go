@@ -10,14 +10,15 @@ import (
 func (hp *httpParser) parseStartLine(r *bufio.Reader) error {
 	startLine, err := r.ReadString('\n')
 	if err != nil {
-		return nil
+		return err
 	}
+	startLine = strings.TrimSpace(startLine)
 	parts := strings.SplitN(startLine, " ", 3)
 	if len(parts) != 3 {
 		return fmt.Errorf("Invalid Start Line: %q", startLine)
 	}
 	// NOTE: trim space for the last part because it contain whitespace
-	hp.startLine = startLineType{parts[0], parts[1], strings.TrimSpace(parts[2])}
+	hp.startLine = startLineType{parts[0], parts[1], parts[2]}
 
 	return nil
 
