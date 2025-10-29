@@ -8,7 +8,7 @@ import (
 )
 
 func main() {
-	var reader *bufio.Reader
+	var r *bufio.Reader
 	if len(os.Args) > 1 {
 		file, err := os.Open(os.Args[1])
 		if err != nil {
@@ -16,13 +16,13 @@ func main() {
 		}
 		defer file.Close()
 
-		reader = bufio.NewReader(file)
+		r = bufio.NewReader(file)
 	}
-	h, err := httpParser.NewHttpParser(reader)
+	hp, err := httpParser.NewHttpParser(r)
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
-	h.Print()
+	hp.Print()
 
 }
