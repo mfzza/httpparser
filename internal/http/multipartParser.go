@@ -14,44 +14,60 @@ func (hp *httpParser) parseMultipartBody(r *bufio.Reader) error {
 		return fmt.Errorf("Content-Type is multipart/form-data, but boundary not found")
 	}
 	boundary := []byte("--" + boundaryStr)
+	boundaryEnd := []byte("--" + boundaryStr + "--")
 
-	isBoundaryEnd := func(r *bufio.Reader) bool {
-		next, _ := r.Peek(2)
-		return string(next) == "--"
-	}
+	buffer := make([]byte, 512)
+	var temp []byte
 
-	buffer := []byte{}
-	var idx int
 	for {
-		// TODO: chunks instead of byte
-		rb, err := r.ReadByte()
-		if err != nil {
-			return err
+		var stop bool
+		n, err := r.Read(buffer)
+		if n > 0 {
+			// append previous uncomplete multipart to proceed here
+			chunk := append(temp, buffer[:n]...)
+
+			// detect boundary end
+			if bytes.Contains(chunk, boundaryEnd) {
+				stop = true
+			}
+
+			var parts []byte
+			idx := bytes.LastIndex(chunk, boundary)
+			if idx != -1 {
+				// only proceed complete multipart, and store the uncomplete into temp
+				parts = chunk[:idx]
+				temp = chunk[idx:]
+			} else {
+				// if no boundary found in this iteration, empty the parts, and store all in temp
+				parts = nil
+				temp = chunk
+			}
+
+			if len(parts) > 0 {
+				for part := range bytes.SplitSeq(parts, boundary) {
+					part = bytes.TrimPrefix(part, []byte("\n"))
+					part = bytes.TrimSuffix(part, []byte("\n"))
+					form, ok, err := convertToMultipart(part)
+					if err != nil {
+						return err
+					}
+					if ok {
+						hp.forms = append(hp.forms, form)
+					}
+				}
+			}
 		}
 
-		buffer = append(buffer, rb)
+		if stop {
+			break
+		}
 
-		if idx = bytes.Index(buffer, boundary); idx != -1 {
-			// boundary found
-			// NOTE: should be both CRLF and LF
-			part := buffer[:idx]
-			part = bytes.TrimPrefix(part, []byte("\r\n"))
-			part = bytes.TrimPrefix(part, []byte("\n"))
-			// make sure it not empty
-			if len(part) != 0 {
-				form, ok, err := convertToMultipart(part)
-				if err != nil {
-					return err
-				}
-				if ok {
-					hp.forms = append(hp.forms, form)
-				}
-			}
-			buffer = buffer[idx+len(boundary):]
+		if err == io.EOF {
+			return nil
+		}
 
-			if isBoundaryEnd(r) {
-				break
-			}
+		if err != nil {
+			return err
 		}
 	}
 
