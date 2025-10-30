@@ -30,6 +30,9 @@ func parseHeader(r *bufio.Reader) (headerType, []string, error) {
 	var headerKey []string
 	for {
 		line, err := r.ReadString('\n')
+		if err == io.EOF {
+			break
+		}
 		if err != nil {
 			return nil, nil, err
 		}
