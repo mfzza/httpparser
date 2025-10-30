@@ -39,7 +39,7 @@ func (hp *httpParser) parseMultipartBody(r *bufio.Reader) error {
 			part = bytes.TrimPrefix(part, []byte("\n"))
 			// make sure it not empty
 			if len(part) != 0 {
-				form, ok, err := assignMultipart(part)
+				form, ok, err := convertToMultipart(part)
 				if err != nil {
 					return err
 				}
@@ -58,19 +58,7 @@ func (hp *httpParser) parseMultipartBody(r *bufio.Reader) error {
 	return nil
 }
 
-func extractBoundaryFromCt(ct string) (string, bool) {
-	for part := range strings.SplitSeq(ct, ";") {
-		part = strings.TrimSpace(part)
-		if after, ok := strings.CutPrefix(part, "boundary="); ok {
-			// remove quote if exists
-			after = strings.Trim(after, `"`)
-			return after, true
-		}
-	}
-	return "", false
-}
-
-func assignMultipart(part []byte) (multipart, bool, error) {
+func convertToMultipart(part []byte) (multipart, bool, error) {
 	form := multipart{}
 	read := bufio.NewReader(bytes.NewReader(part))
 
@@ -85,30 +73,9 @@ func assignMultipart(part []byte) (multipart, bool, error) {
 		return form, false, nil
 	}
 
-	var name, filename string
-	fields := strings.Split(cd, ";")
-	// if it less than 2, which is it only contain text "form-data"
-	if len(fields) < 2 {
+	name, filename, ok := extractContentDisposition(cd)
+	if !ok {
 		return form, false, nil
-	}
-	// if the first fields is not "form-data"
-	if strings.TrimSpace(fields[0]) != "form-data" {
-		return form, false, nil
-	}
-	// if the second fields is not prefix "name="
-	fields[1] = strings.TrimSpace(fields[1])
-	if tmp, ok := strings.CutPrefix(fields[1], "name="); ok {
-		name = tmp
-	} else {
-		return form, false, nil
-	}
-
-	// process filename field, if exists
-	if len(fields) >= 3 {
-		fields[2] = strings.TrimSpace(fields[2])
-		if tmp, ok := strings.CutPrefix(fields[2], "filename="); ok {
-			filename = tmp
-		}
 	}
 
 	var ct string
@@ -125,4 +92,36 @@ func assignMultipart(part []byte) (multipart, bool, error) {
 
 	form = multipart{name: name, filename: filename, contentType: ct, value: value}
 	return form, true, nil
+}
+
+func extractBoundaryFromCt(ct string) (string, bool) {
+	for part := range strings.SplitSeq(ct, ";") {
+		part = strings.TrimSpace(part)
+		if after, ok := strings.CutPrefix(part, "boundary="); ok {
+			after = strings.Trim(after, `"`)
+			return after, true
+		}
+	}
+	return "", false
+}
+
+func extractContentDisposition(cd string) (string, string, bool) {
+	var name, filename string
+	var valid bool
+	for part := range strings.SplitSeq(cd, ";") {
+		part = strings.TrimSpace(part)
+
+		if ok := strings.Contains(part,"form-data"); ok {
+			valid = true
+		}
+		if after, ok := strings.CutPrefix(part, "name="); ok {
+			after = strings.Trim(after, `"`)
+			name = after
+		}
+		if after, ok := strings.CutPrefix(part, "filename="); ok {
+			after = strings.Trim(after, `"`)
+			filename = after
+		}
+	}
+	return name, filename, valid && name != ""
 }
