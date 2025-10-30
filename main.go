@@ -17,6 +17,10 @@ func main() {
 		defer file.Close()
 
 		r = bufio.NewReader(file)
+	} else {
+		fmt.Println("PLEASE PROVIDE THE FILE")
+		fmt.Println("EXAMPLE: go run . test/testdata/multipart.txt")
+		return
 	}
 	hp, err := httpParser.NewHttpParser(r)
 	if err != nil {
