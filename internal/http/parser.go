@@ -17,7 +17,6 @@ func (hp *httpParser) parseStartLine(r *bufio.Reader) error {
 	if len(parts) != 3 {
 		return fmt.Errorf("Invalid Start Line: %q", startLine)
 	}
-	// NOTE: trim space for the last part because it contain whitespace
 	hp.startLine = startLineType{parts[0], parts[1], parts[2]}
 
 	return nil

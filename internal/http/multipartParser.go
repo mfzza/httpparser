@@ -51,6 +51,7 @@ func (hp *httpParser) parseMultipartBody(r *bufio.Reader) error {
 					if err != nil {
 						return err
 					}
+					// silently skipped if it doesnt have a MUST field
 					if ok {
 						hp.forms = append(hp.forms, form)
 					}
