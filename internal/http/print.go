@@ -27,7 +27,7 @@ func (hp *httpParser) printHeaderOrdered() {
 
 func (hp *httpParser) printHeader() {
 	for key, val := range hp.header {
-		fmt.Print("- ", key, ": [", val[0], "]\n")
+		fmt.Print("- ", key, ": [", val, "]\n")
 	}
 }
 
