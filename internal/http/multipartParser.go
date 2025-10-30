@@ -45,6 +45,8 @@ func (hp *httpParser) parseMultipartBody(r *bufio.Reader) error {
 
 			if len(parts) > 0 {
 				for part := range bytes.SplitSeq(parts, boundary) {
+					part = bytes.TrimPrefix(part, []byte("\r\n"))
+					part = bytes.TrimSuffix(part, []byte("\r\n"))
 					part = bytes.TrimPrefix(part, []byte("\n"))
 					part = bytes.TrimSuffix(part, []byte("\n"))
 					form, ok, err := convertToMultipart(part)
