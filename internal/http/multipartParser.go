@@ -74,13 +74,16 @@ func convertToMultipart(part []byte) (multipart, bool, error) {
 	}
 	cd = strings.TrimSpace(cd)
 
+	// NAME & FILENAME
 	name, filename, ok := extractContentDisposition(cd)
 	if !ok {
 		return form, false, nil
 	}
 
+	// CONTENT-TYPE
 	ct := strings.TrimSpace(header["content-type"])
 
+	// VALUE
 	value, err := io.ReadAll(read)
 	if err != nil {
 		return form, false, err
