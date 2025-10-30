@@ -68,10 +68,11 @@ func convertToMultipart(part []byte) (multipart, bool, error) {
 	}
 
 	// skip if doesnt have Content-Disposition field
-	cd := strings.TrimSpace(header["content-disposition"])
-	if cd == "" {
+	cd, ok := header["content-disposition"]
+	if !ok {
 		return form, false, nil
 	}
+	cd = strings.TrimSpace(cd)
 
 	name, filename, ok := extractContentDisposition(cd)
 	if !ok {
