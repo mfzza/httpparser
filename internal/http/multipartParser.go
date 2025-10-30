@@ -78,12 +78,7 @@ func convertToMultipart(part []byte) (multipart, bool, error) {
 		return form, false, nil
 	}
 
-	var ct string
-	if len(header["content-type"]) == 0 {
-		ct = ""
-	} else {
-		ct = header["content-type"]
-	}
+	ct := strings.TrimSpace(header["content-type"])
 
 	value, err := io.ReadAll(read)
 	if err != nil {
