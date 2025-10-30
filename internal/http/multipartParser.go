@@ -9,18 +9,12 @@ import (
 )
 
 func (hp *httpParser) parseMultipartBody(r *bufio.Reader) error {
-	ct := strings.Split(hp.header["content-type"], ";")
-
-	if len(ct) != 2 {
+	boundaryStr, ok := extractBoundaryFromCt(hp.header["content-type"])
+	if !ok {
 		return fmt.Errorf("Content-Type is multipart/form-data, but boundary not found")
 	}
-	boundaryStr := strings.TrimSpace(ct[1])
-	if !strings.HasPrefix(boundaryStr, "boundary=") {
-		return fmt.Errorf("Content-Type is multipart/form-data, but boundary is invalid: %q", boundaryStr)
-	}
-	boundaryStr = strings.TrimPrefix(boundaryStr, "boundary=")
-
 	boundary := []byte("--" + boundaryStr)
+
 	isBoundaryEnd := func(r *bufio.Reader) bool {
 		next, _ := r.Peek(2)
 		return string(next) == "--"
@@ -62,6 +56,18 @@ func (hp *httpParser) parseMultipartBody(r *bufio.Reader) error {
 	}
 
 	return nil
+}
+
+func extractBoundaryFromCt(ct string) (string, bool) {
+	for part := range strings.SplitSeq(ct, ";") {
+		part = strings.TrimSpace(part)
+		if after, ok := strings.CutPrefix(part, "boundary="); ok {
+			// remove quote if exists
+			after = strings.Trim(after, `"`)
+			return after, true
+		}
+	}
+	return "", false
 }
 
 func assignMultipart(part []byte) (multipart, bool, error) {
