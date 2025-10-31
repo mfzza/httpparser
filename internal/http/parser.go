@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-func (hp *httpParser) parseStartLine(r *bufio.Reader) error {
+func (hp *HttpParser) parseStartLine(r *bufio.Reader) error {
 	startLine, err := r.ReadString('\n')
 	if err != nil {
 		return err
@@ -52,7 +52,7 @@ func parseHeader(r *bufio.Reader) (headerType, []string, error) {
 	return header, headerKey, nil
 }
 
-func (hp *httpParser) parseBody(r *bufio.Reader) error {
+func (hp *HttpParser) parseBody(r *bufio.Reader) error {
 	ct := strings.Split(hp.header["content-type"], ";")
 
 	switch ct[0] {

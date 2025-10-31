@@ -6,7 +6,7 @@ import (
 
 type headerType map[string]string
 
-type httpParser struct {
+type HttpParser struct {
 	startLine startLineType
 	header    headerType
 	headerKey []string //NOTE: to know it order, maybe not really needed?
@@ -35,8 +35,8 @@ type multipart struct {
 	value       []byte
 }
 
-func NewHttpParser(r *bufio.Reader) (*httpParser, error) {
-	hp := httpParser{header: make(headerType)}
+func NewHttpParser(r *bufio.Reader) (*HttpParser, error) {
+	hp := HttpParser{header: make(headerType)}
 
 	var err error
 	err = hp.parseStartLine(r)

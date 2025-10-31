@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-func (hp *httpParser) parseMultipartBody(r *bufio.Reader) error {
+func (hp *HttpParser) parseMultipartBody(r *bufio.Reader) error {
 	boundaryStr, ok := extractBoundaryFromCt(hp.header["content-type"])
 	if !ok {
 		return fmt.Errorf("Content-Type is multipart/form-data, but boundary not found")
