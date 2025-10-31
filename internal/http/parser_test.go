@@ -115,3 +115,69 @@ func Test_parseHeader(t *testing.T) {
 		})
 	}
 }
+
+func TestHttpParser_parseBody(t *testing.T) {
+	tests := []struct {
+		name string // description of this test case
+		// Named input parameters for receiver constructor.
+		ct       string
+		body     string
+		wantBody string
+		wantErr  bool
+	}{
+		{
+			name:     "plain text body",
+			ct:       "text/plain",
+			body:     "hello world",
+			wantBody: "hello world",
+			wantErr:  false,
+		},
+		{
+			name:     "missing Content-Type",
+			ct:       "",
+			body:     "hello world",
+			wantBody: "hello world",
+			wantErr:  false,
+		},
+		{
+
+			name:     "empty body",
+			ct:       "text/plain",
+			body:     "",
+			wantBody: "",
+			wantErr:  false,
+		},
+		{
+			name:    "multipart body success",
+			ct:      "multipart/form-data; boundary=abc",
+			body:    "--abc\r\nContent-Disposition: form-data; name=\"field\"\r\n\r\nvalue\r\n--abc--",
+			wantErr: false,
+		},
+		{
+			name:    "multipart body error",
+			ct:      "multipart/form-data",
+			body:    "--abc\r\nsomething invalid",
+			wantErr: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			hp := &HttpParser{header: map[string]string{"content-type": tt.ct}}
+			r := bufio.NewReader(strings.NewReader(tt.body))
+			gotErr := hp.parseBody(r)
+
+			if gotErr != nil {
+				if !tt.wantErr {
+					t.Errorf("parseBody() failed: %v", gotErr)
+				}
+				return
+			}
+			if tt.wantErr {
+				t.Fatal("parseBody() succeeded unexpectedly")
+			}
+			if string(hp.body) != tt.wantBody {
+				t.Errorf("form = %+v, want %+v", string(hp.body), tt.body)
+			}
+		})
+	}
+}
