@@ -26,12 +26,9 @@ func (hp *HttpParser) parseStartLine(r *bufio.Reader) error {
 // NOTE: reused in parsing multipart
 func parseHeader(r *bufio.Reader) (headerType, []string, error) {
 	header := make(headerType)
-	var headerKey []string
+	headerKey := []string{}
 	for {
 		line, err := r.ReadString('\n')
-		if err == io.EOF {
-			break
-		}
 		if err != nil {
 			return nil, nil, fmt.Errorf("Failed to read Header field: %w", err)
 		}
