@@ -55,7 +55,6 @@ func Test_parseHeader(t *testing.T) {
 	tests := []struct {
 		name string // description of this test case
 		// Named input parameters for target function.
-		// NOTE: in function
 		input   string
 		want    headerType
 		want2   []string
@@ -65,7 +64,7 @@ func Test_parseHeader(t *testing.T) {
 			name: "valid headers",
 			input: "Content-Type: text/html\r\n" +
 				"User-Agent: curl/8.0\r\n" +
-				"\r\n", // blank line ends header
+				"\r\n",
 			want: headerType{
 				"content-type": "text/html",
 				"user-agent":   "curl/8.0",
@@ -87,7 +86,7 @@ func Test_parseHeader(t *testing.T) {
 			wantErr: false,
 		},
 		{
-			name:    "empty input (EOF)",
+			name:    "empty Header and Body",
 			input:   "",
 			want:    headerType{},
 			want2:   []string{},
