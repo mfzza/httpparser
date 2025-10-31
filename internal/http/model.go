@@ -2,6 +2,7 @@ package httpParser
 
 import (
 	"bufio"
+	"fmt"
 )
 
 type headerType map[string]string
@@ -41,16 +42,16 @@ func NewHttpParser(r *bufio.Reader) (*HttpParser, error) {
 	var err error
 	err = hp.parseStartLine(r)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to parse Start Line: %w", err)
 	}
 	hp.header, hp.headerKey, err = parseHeader(r)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("Failed to parse Header field: %w", err)
 	}
 
 	err = hp.parseBody(r)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("Failed to parse Body: %w", err)
 	}
 
 	return &hp, nil

@@ -10,7 +10,7 @@ import (
 func (hp *HttpParser) parseStartLine(r *bufio.Reader) error {
 	startLine, err := r.ReadString('\n')
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to read Start Line: %w", err)
 	}
 	startLine = strings.TrimSpace(startLine)
 	parts := strings.SplitN(startLine, " ", 3)
@@ -33,7 +33,7 @@ func parseHeader(r *bufio.Reader) (headerType, []string, error) {
 			break
 		}
 		if err != nil {
-			return nil, nil, err
+			return nil, nil, fmt.Errorf("Failed to read Header field: %w", err)
 		}
 
 		line = strings.TrimSpace(line)
@@ -59,13 +59,13 @@ func (hp *HttpParser) parseBody(r *bufio.Reader) error {
 	case "multipart/form-data":
 		err := hp.parseMultipartBody(r)
 		if err != nil {
-			return err
+			return fmt.Errorf("Failed to parse multipart: %w", err)
 		}
 	default:
 		var err error
 		hp.body, err = io.ReadAll(r)
 		if err != nil {
-			return err
+			return fmt.Errorf("Failed to read Body: %w", err)
 		}
 	}
 	return nil

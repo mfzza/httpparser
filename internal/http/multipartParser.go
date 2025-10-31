@@ -51,7 +51,8 @@ func (hp *HttpParser) parseMultipartBody(r *bufio.Reader) error {
 					part = bytes.TrimSuffix(part, []byte("\n"))
 					form, ok, err := convertToMultipart(part)
 					if err != nil {
-						return err
+						// maybe just log the error instead?
+						return fmt.Errorf("Failed to convert multipart into form: %w", err)
 					}
 					// silently skipped if it doesnt have a MUST field
 					if ok {
@@ -70,7 +71,7 @@ func (hp *HttpParser) parseMultipartBody(r *bufio.Reader) error {
 		}
 
 		if err != nil {
-			return err
+			return fmt.Errorf("Failed to read HTTP Body: %w", err)
 		}
 	}
 
@@ -83,11 +84,11 @@ func convertToMultipart(part []byte) (multipart, bool, error) {
 
 	header, _, err := parseHeader(read)
 	if err != nil {
-		return form, false, err
+		return form, false, fmt.Errorf("Failed to parse multipart Header field: %w", err)
 	}
 
-	// skip if doesnt have Content-Disposition field
 	cd, ok := header["content-disposition"]
+	// skip if doesnt have Content-Disposition field
 	if !ok {
 		return form, false, nil
 	}
@@ -105,7 +106,7 @@ func convertToMultipart(part []byte) (multipart, bool, error) {
 	// VALUE
 	value, err := io.ReadAll(read)
 	if err != nil {
-		return form, false, err
+		return form, false, fmt.Errorf("Failed to read multipart Body: %w", err)
 	}
 
 	form = multipart{name: name, filename: filename, contentType: ct, value: value}
@@ -129,7 +130,7 @@ func extractContentDisposition(cd string) (string, string, bool) {
 	for part := range strings.SplitSeq(cd, ";") {
 		part = strings.TrimSpace(part)
 
-		if ok := strings.Contains(part,"form-data"); ok {
+		if ok := strings.Contains(part, "form-data"); ok {
 			valid = true
 		}
 		if after, ok := strings.CutPrefix(part, "name="); ok {
