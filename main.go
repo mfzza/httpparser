@@ -8,25 +8,31 @@ import (
 )
 
 func main() {
-	var r *bufio.Reader
-	if len(os.Args) > 1 {
-		file, err := os.Open(os.Args[1])
+	if len(os.Args) < 2 {
+		fmt.Fprintln(os.Stderr, "USAGE\t: go run . <path-to-file>")
+		fmt.Println("EXAMPLE\t: go run . test/testdata/multipart.txt")
+		os.Exit(1)
+	}
+
+	for _, filepath := range os.Args[1:] {
+		// file, err := os.Open(os.Args[1])
+		file, err := os.Open(filepath)
+		fmt.Println("****************************************************************")
+		fmt.Println("FILE:", filepath)
 		if err != nil {
-			panic(err)
+			fmt.Fprintf(os.Stderr, "Error opening a file: %v\n", err)
+			continue
 		}
 		defer file.Close()
 
-		r = bufio.NewReader(file)
-	} else {
-		fmt.Println("PLEASE PROVIDE THE FILE")
-		fmt.Println("EXAMPLE: go run . test/testdata/multipart.txt")
-		return
+		r := bufio.NewReader(file)
+		hp, err := httpParser.NewHttpParser(r)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Error parsing HTTP Message: %v\n", err)
+			continue
+		}
+
+		hp.Print()
 	}
-	hp, err := httpParser.NewHttpParser(r)
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-	hp.Print()
 
 }
