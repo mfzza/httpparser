@@ -43,21 +43,28 @@ func (hp *HttpParser) parseMultipartBody(r *bufio.Reader) error {
 				temp = chunk
 			}
 
-			if len(parts) > 0 {
-				for part := range bytes.SplitSeq(parts, boundary) {
-					part = bytes.TrimPrefix(part, []byte("\r\n"))
-					part = bytes.TrimSuffix(part, []byte("\r\n"))
-					part = bytes.TrimPrefix(part, []byte("\n"))
-					part = bytes.TrimSuffix(part, []byte("\n"))
-					form, ok, err := convertToMultipart(part)
-					if err != nil {
-						// maybe just log the error instead?
-						return fmt.Errorf("Failed to convert multipart into form: %w", err)
-					}
-					// silently skipped if it doesnt have a MUST field
-					if ok {
-						hp.forms = append(hp.forms, form)
-					}
+			if len(parts) == 0 {
+				continue
+			}
+			for part := range bytes.SplitSeq(parts, boundary) {
+				part = bytes.TrimPrefix(part, []byte("\r\n"))
+				part = bytes.TrimSuffix(part, []byte("\r\n"))
+				part = bytes.TrimPrefix(part, []byte("\n"))
+				part = bytes.TrimSuffix(part, []byte("\n"))
+
+				// make sure to not proceed empty part
+				if len(part) == 0 {
+					continue
+				}
+
+				form, ok, err := convertToMultipart(part)
+				if err != nil {
+					// maybe just log the error instead?
+					return fmt.Errorf("Failed to convert multipart into form: %w", err)
+				}
+				// silently skipped if it doesnt have a MUST field
+				if ok {
+					hp.forms = append(hp.forms, form)
 				}
 			}
 		}
